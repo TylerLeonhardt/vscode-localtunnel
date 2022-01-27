@@ -12,10 +12,8 @@ export function activate(context: vscode.ExtensionContext) {
 		const portStr = await vscode.window.showInputBox({
 			prompt: 'What port would you like to tunnel? (ex. 8080)',
 			validateInput(value) {
-				let port;
-				try {
-					port = Number.parseInt(value);
-				} catch (e) {
+				const port = Number.parseInt(value);
+				if (isNaN(port)) {
 					return 'Not a valid number';
 				}
 				if (activeTunnels.has(port)) {

@@ -2,7 +2,7 @@
 	"name": "vscode-localtunnel",
 	"displayName": "Localtunnel Helper",
 	"description": "Expose tunnels right from VS Code. Powered by Localtunnel.",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"publisher": "TylerLeonhardt",
 	"license": "MIT",
 	"repository": {
@@ -23,11 +23,13 @@
 		"commands": [
 			{
 				"command": "localtunnel.expose",
-				"title": "Expose a new localtunnel"
+				"title": "Expose a new tunnel",
+				"category": "Localtunnel"
 			},
 			{
 				"command": "localtunnel.close",
-				"title": "Close an existing localtunnel"
+				"title": "Close an existing tunnel",
+				"category": "Localtunnel"
 			}
 		]
 	},
