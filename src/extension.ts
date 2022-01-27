@@ -1,25 +1,75 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import * as localtunnel from 'localtunnel';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "localtunnel" is now active!');
+	const activeTunnels = new Map<Number, localtunnel.Tunnel>();
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('localtunnel.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from localtunnel!');
-	});
+	context.subscriptions.push(vscode.commands.registerCommand('localtunnel.expose', async () => {
+		const portStr = await vscode.window.showInputBox({
+			prompt: 'What port would you like to tunnel? (ex. 8080)',
+			validateInput(value) {
+				let port;
+				try {
+					port = Number.parseInt(value);
+				} catch (e) {
+					return 'Not a valid number';
+				}
+				if (activeTunnels.has(port)) {
+					return `That port is already open with url: ${activeTunnels.get(port)!.url}`;
+				}
+				return undefined;
+			}
+		});
+		
+		if (!portStr) {
+			return;
+		}
 
-	context.subscriptions.push(disposable);
+		const port = Number.parseInt(portStr);
+
+		const tunnel = await localtunnel({ port });
+		tunnel.on('error', (err) => {
+			vscode.window.showErrorMessage(`Tunnel with port ${portStr} threw an error: ${err}`);
+			activeTunnels.delete(port);
+			try {
+				tunnel.close();
+			} catch(e) {
+				vscode.window.showErrorMessage(`Closing tunnel with port ${portStr} threw an error: ${err}`);
+			}
+		});
+		activeTunnels.set(port, tunnel);
+		const choice = await vscode.window.showInformationMessage(`Your port, ${portStr}, is exposed via: ${tunnel.url}`, 'Open Url');
+		if (choice === 'Open Url') {
+			await vscode.env.openExternal(vscode.Uri.parse(tunnel.url));
+		}
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('localtunnel.close', async () => {
+		const items: Array<vscode.QuickPickItem & { port: Number, tunnel: localtunnel.Tunnel}> = [];
+		for (const [key, value] of activeTunnels) {
+			items.push({
+				label: `${key}`,
+				description: value.url,
+				port: key,
+				tunnel: value
+			});
+		}
+
+		const choice = await vscode.window.showQuickPick(items, {
+			placeHolder: 'Which tunnel would you would like to close?'
+		});
+
+		if (!choice) {
+			return;
+		}
+
+		activeTunnels.delete(choice.port);
+		choice.tunnel.close();
+	}));
 }
 
 // this method is called when your extension is deactivated
