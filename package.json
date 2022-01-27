@@ -2,7 +2,7 @@
 	"name": "vscode-localtunnel",
 	"displayName": "Localtunnel Helper",
 	"description": "Expose tunnels right from VS Code. Powered by Localtunnel.",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"publisher": "TylerLeonhardt",
 	"license": "MIT",
 	"repository": {

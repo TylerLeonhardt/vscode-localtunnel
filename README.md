@@ -3,6 +3,8 @@
 
 Expose tunnels right from VS Code. Powered by [Localtunnel](https://localtunnel.github.io/www/).
 
+> NOTE: Do not use this extension with sensitive data. Your port will be exposed to the open internet.
+
 ## Commands
 
 * `Localtunnel: Expose a new tunnel` - creates the new tunnel and shows a notification with the random Url
