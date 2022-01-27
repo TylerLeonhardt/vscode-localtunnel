@@ -15,7 +15,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:localtunnel.helloWorld"
+		"onCommand:localtunnel.expose",
+		"onCommand:localtunnel.close"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
